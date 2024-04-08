@@ -1,14 +1,19 @@
 package phrase.gui;
 
 import java.awt.BorderLayout;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 
 import phrase.model.Filter;
 import phrase.model.filters.Factor;
@@ -57,13 +62,38 @@ public class PhraseAppli {
      * La lecture de in doit se faire sur le thread du SwingWorker.
      * La manipulation de filteringPane doit se faire sur EDT.
      */
-    public void populateFilteringPane(File in) {
-        /*****************/
-        /** A COMPLETER **/
-        /*****************/
+    public void populateFilteringPane(final File in) {
+        SwingWorker<Void, String> sw = new SwingWorker<Void,String>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				BufferedReader r = new BufferedReader(new FileReader(in));
+				try {
+					String s = r.readLine();
+					while (s !=null) {
+						publish(s);
+						delayAction();
+						s= r.readLine();
+					}
+				} finally {
+					r.close();
+				}
+				return null;
+			}
+			@Override
+			protected void process(List<String> l) {
+				for (String s: l) {
+					filteringPane.addElement(s);
+				}
+			}
+        	
+        };
+        sw.execute();
     }
 
+
     // OUTILS
+    
+
     
     private void placeComponents() {
         JPanel p = new JPanel();

@@ -1,6 +1,10 @@
 package phrase.view;
 
 import java.awt.BorderLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseListener;
+import java.util.Collection;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -9,37 +13,48 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
+
+import java.awt.event.MouseEvent;
+
+import javax.swing.event.DocumentEvent;
 
 import phrase.model.Filter;
 import phrase.model.FilteringListModel;
-import phrase.model.StdFilteringListModel;
+import phrase.model.StdMarkableFilteringListModel;
 import util.Contract;
 
 public class FilteringPane extends JPanel {
 
     // ATTRIBUTS
 
-    private final MarkableFilteringListModel listModel;
-    private final JComboBox allFilters;
+    private static final long serialVersionUID = -6619467185836836935L;
+	private final FilteringListModel listModel;
+    @SuppressWarnings("rawtypes")
+	private final JComboBox allFilters;
     private final JTextField filterValue;
     private final JList filteringList;
 
     // CONSTRUCTEURS
 
-    public FilteringPane(Filter[] filters) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public FilteringPane(Filter[] filters) {
         super(new BorderLayout());
 
         // MODELE
-        listModel = new StandardFilteringListModel();
+        listModel = new StdMarkableFilteringListModel();
         // VUE
         allFilters = new JComboBox(new DefaultComboBoxModel(filters));
         filterValue = new JTextField();
         filteringList = new JList(listModel);
+        filteringList.setCellRenderer(new ItalicListCellRenderer());
         placeComponents();
         // CONTROLEUR
         connectControllers();
         
         setCurrentFilterFromSelectedItem();
+        setCurrentFilterValueFromTextField();
     }
 
     // REQUETES
@@ -53,7 +68,7 @@ public class FilteringPane extends JPanel {
     }
 
     public JList getList() {
-        return filteringList;
+        return filteringList; 
     }
 
     // COMMANDES
@@ -116,14 +131,83 @@ public class FilteringPane extends JPanel {
     }
 
     private void connectControllers() {
+
         /*****************/
-        /** A COMPLETER **/
+    	Document document = filterValue.getDocument();
+    	document.addDocumentListener(new DocumentListener() {			
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				setCurrentFilterValueFromTextField();
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				setCurrentFilterValueFromTextField();
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				//rien
+			}
+		});  	
+    	
+    	allFilters.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				setCurrentFilterFromSelectedItem();
+				setCurrentFilterValueFromTextField();
+			}
+		});
+    	 	    	
+    	MouseListener mL = new MouseListener() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) { 
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					((StdMarkableFilteringListModel)listModel).toggleMark((String)filteringList.getSelectedValue());
+				}	
+			}
+		};    	
+    	
+		filteringList.addMouseListener(mL);
+		
         /*****************/
     }
-
     private void setCurrentFilterFromSelectedItem() {
         /*****************/
-        /** A COMPLETER **/
+		Filter filter= (Filter) allFilters.getSelectedItem();
+		listModel.setFilter(filter);
         /*****************/
     }
+    
+    //----------------------------------------- OUTILS --------------------------------------------------//
+    private void setCurrentFilterValueFromTextField() {
+    	if (listModel.getFilter() != null) {
+			listModel.getFilter().setValue(filterValue.getText());
+		}
+    }
+    
 }

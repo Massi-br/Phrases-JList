@@ -1,11 +1,10 @@
 package phrase.model;
 
 import java.beans.PropertyChangeEvent;
+
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
@@ -20,7 +19,6 @@ public class StdFilteringListModel extends AbstractListModel implements Filterin
 	private List<String> UnfilteredList;
 	private List<String> filteredList;
 	private Filter f;
-	private PropertyChangeSupport pcs;
 	
 	public StdFilteringListModel() {
 		UnfilteredList =new ArrayList<String>(); 
@@ -43,7 +41,7 @@ public class StdFilteringListModel extends AbstractListModel implements Filterin
 
 	@Override
 	public int getSize() {
-		return UnfilteredList.size();
+		return filteredList.size();
 	}
 
 	@Override
@@ -69,7 +67,7 @@ public class StdFilteringListModel extends AbstractListModel implements Filterin
 		UnfilteredList.add(element);
 		if (f == null || f.accept(element)){
 			filteredList.add(element);
-			fireIntervalAdded(filteredList, getSize()-1, getSize()-1);
+			fireIntervalAdded(element, filteredList.size() -1, filteredList.size() -1);
 		}	
 	}
 
@@ -78,41 +76,57 @@ public class StdFilteringListModel extends AbstractListModel implements Filterin
 		UnfilteredList.clear();
 		filteredList.clear();
 		
-		fireIntervalRemoved(filteredList, 0, Math.max(0, getSize()-1));
+		fireIntervalRemoved(this, 0, Math.max(0, filteredList.size() -1));
 	} 
 
 	@Override
 	public void setElements(Collection<String> c) {
-		Contract.checkCondition(c != null);
+		Contract.checkCondition(c!=null);
 		
-		UnfilteredList.clear(); 
-		UnfilteredList.addAll(c);
-		updateFilter();
+		UnfilteredList = new ArrayList<String>(c);
+		filteredList.clear();
+		if (f == null) {
+			filteredList = new ArrayList<String>(c);
+		} else {
+			for (String s: UnfilteredList) {
+				if (f.accept(s)) {
+					filteredList.add(s);
+				}
+			}
+		}
+		fireContentsChanged(this,0,Math.max(0,filteredList.size() - 1));
 	}
 
 	@Override
-	public void setFilter(Filter filter) {
-		if (f == filter) {
-			return;
-		}
-		f = filter;
-		f.addPropertyChangeListener(Filter.PROP_VALUE, new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				updateFilter();				
-			}
-		} );
-	}
-	
-	//-----------------------------------------------------OUTILS---------------------------------//
-	private void updateFilter() {
-		filteredList.clear();
-		if (f == null) {
-			filteredList.addAll(UnfilteredList);
-		}else {
-			filteredList.addAll(f.filter(UnfilteredList));
-		}	
-		fireContentsChanged(filteredList, 0,Math.max(0, getSize()-1));
-	}
+    public void setFilter(Filter filter) {
+	if (f == filter) {
+       return;
+    }
+       f = filter;
+       filteredList.clear();
+       for (String s : UnfilteredList) {
+           if (filter == null || filter.accept(s)) {
+               filteredList.add(s);
+           }
+       }
+       if (filter != null) {
+           PropertyChangeListener l = new PropertyChangeListener() {
+               @Override
+               public void propertyChange(PropertyChangeEvent evt) {
+                   filteredList.clear();
+                   for (String s : UnfilteredList) {
+                       if (StdFilteringListModel.this.f.accept(s)) {
+                           filteredList.add(s);
+                       }
+                   }
+                   fireContentsChanged(this, 0, Math.max(0, filteredList.size() - 1));
+               }
+           };
+           filter.addPropertyChangeListener(Filter.PROP_VALUE, l);
+       } else {
+           filteredList = new ArrayList<String>(UnfilteredList);
+       }
+       fireContentsChanged(this, 0, Math.max(0, filteredList.size() - 1));
+   }
 	
 }
