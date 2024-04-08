@@ -8,7 +8,7 @@ screenshoot.jpg
 Description des concepts et travail à faire
 s1.jpg
 
-Présentation des paquetages :
+### Présentation des paquetages :
 phrase contient la classe racine de l'application : Main.
 phrase.model contient l'interface Filter qui spécifie un type global pour les différentes sortes de filtres utilisables sur des chaînes de caractères. Il contient aussi l'interface FilteringListModel qui spécifie un nouveau type de modèles de JList permettant de filtrer ses éléments, qui sont des chaînes de caractères, en fonction d'un filtre donné. Cette dernière interface sera implantée dans les classes StdFilteringListModel et MarkableFilteringListModel, la première étant une implantation standard de l'interface FilteringListModel et la seconde une autre implantation qui, au surplus de ce que fait la précédente, mémorise le marquage des éléments de la liste graphique.
 phrase.model.filters contient les différentes réalisations disponibles de l'interface Filter.
@@ -16,7 +16,7 @@ phrase.view contient une nouvelle classe de bean : FilteringPane. Il s'agit d'un
 phrase.gui contient la classe PhraseAppli qui code l'application graphique permettant d'expérimenter le comportement d'un FilteringPane.
 Vous trouverez aussi un répertoire serie07/data (qu'il n'est pas utile de placer dans le chemin de génération) contenant un fichier de texte contenu.txt. Il s'agit d'une séquence de phrases générées aléatoirement. Vous pouvez l'utiliser pour vous amuser, mais tout autre fichier de texte fonctionnera aussi, bien évidemment.
 
-Présentation des filtres
+### Présentation des filtres
 Un filtre f est un objet permettant de sélectionner, parmi une liste de chaines de caractères, celles qui vérifient une certaine propriété comme, par exemple : « la chaîne s contient le mot v ». On peut définir formellement la propriété associée à f par une fonction booléenne p : S × S -> B telle que p(s, v) = VRAI si et seulement si la chaîne s contient la chaîne v (où S est l'ensemble des chaînes et B l'ensemble des booléens). Appliquer f sur tous les éléments d'une liste de chaînes, consiste à fixer le paramètre v de p et à faire varier le paramètre s sur tous les éléments de cette liste, en retenant seulement ceux pour lesquels p(s, v) retourne VRAI.
 
 En Java, on réalisera cela à l'aide d'une interface dotée des méthodes suivantes :
@@ -46,7 +46,7 @@ setValue.svg
 
 La partie de gauche du diagramme (concernant les objets :Filter jusqu'à :StdFilteringListModel) indique ce qu'il se passe lorsqu'on change la valeur du filtre associé au modèle. La partie droite (concernant les objets :ListDataListener et :JList) n'est là que pour vous rappeler comment la JList se rafraîchit lorsque son modèle change d'état.
 
-Travail à faire
+#### Travail à faire
 Codez une classe StdFilteringListModel qui implante l'interface FilteringModel.
 Le bean FilteringPane
 Notre bean est une sorte de JPanel qui agrège une JList, une JComboBox et un JTextField. Vous repèrerez facilement les différentes classes en présence, ainsi que les noms des attributs, à l'aide du diagramme suivant :
@@ -66,7 +66,7 @@ Lorsque le client modifie le contenu du champ de texte, il faut modifier aussit�
 
 keyPressed.svg
 
-Travail à faire dans la classe FilteringPane fournie
+#### Travail à faire dans la classe FilteringPane fournie
 Ajoutez un DocumentListener sur le modèle du champ de texte permettant de modifier la valeur du filtre du modèle de liste filtrante.
 Ajoutez un ItemListener sur la boite combo permettant de changer le filtre du modèle de liste filtrante. Vous utiliserez (après l'avoir complétée) la méthode setCurrentFilterFromSelectedItem.
 L'application graphique
